@@ -111,12 +111,9 @@ class FunctionBinning(BaseEstimator, TransformerMixin):
 
     def transform(self, X, y = None):
         #Do transformations
-        print('Nazivi kolona su')
-        print(type(X))
-        print(X.columns)
+      
         for feat, values in self.featurizers.items():
-            print(feat)
-            print(values)
+        
             replace = lambda x: x if x in values else 'Other'
             X[feat] = X[feat].apply(replace)   
         print("Binning Transformation is finished")
