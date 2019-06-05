@@ -85,3 +85,11 @@ if __name__ == '__main__':
     sys.exit(main( new_example, campaign))
     
 
+"""
+new_example = {'advertiser_id': 276, 'campaign_id': 821471, 'creative_id': 11591213, 'keyword_id': 16612975,
+     'country_code': 'US', 'state':'PA', 'dma': 622, 'organization': 'Spectrum', 
+       'browser_ver': 'Chrome', 'platform': 'Windows', 'network': 'W151', 'location_id': 5779, 
+        'request_tld' : 'search.yahoo.com', 'ad_blocker': 0,
+       'hour': 21, 'day_of_week': 5, 'install_week': 400, 'content_category_ids': 1802,
+       'url_category_ids':'802|801', 'project_id': 146}
+"""

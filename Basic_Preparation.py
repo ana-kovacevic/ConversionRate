@@ -116,7 +116,7 @@ class FunctionBinning(BaseEstimator, TransformerMixin):
         
             replace = lambda x: x if x in values else 'Other'
             X[feat] = X[feat].apply(replace)   
-        print("Binning Transformation is finished")
+        #print("Binning Transformation is finished")
         return X
 
 ## ----------------------------------------------------------------------------------------------------- ##

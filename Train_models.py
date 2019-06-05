@@ -11,14 +11,15 @@ Created on Sun Jun  2 20:45:20 2019
 """
 ### Set working directory
 import os
-#os.chdir("F:/Kursevi i Ucenje/DS Task")
+os.chdir('../ConversionRate')
+
 
 ############# Imput parameters
-path = 'F:/Kursevi i Ucenje/DS Task'
+path = 'F:/Kursevi i Ucenje/ConversionRate'
 filename = 'campaign_821471.log'
 fullpath = 'F:/Kursevi i Ucenje/DS Task' + '/' + filename 
-test_size = 0.2 # !!!!!!!!!!!!!!!!!!!!!!!!! da li da bude parametar
-models = ['LogisticRegression', 'RandomForest', 'XGBoost']
+test_size = 0.2 # !! da li da bude parametar
+models = ['LogisticRegression', 'RandomForest', 'LGBM']
 #model = 'LogisticRegression'
 
 df_dict = {'df1':'campaign_821471.log',
@@ -52,7 +53,7 @@ from sklearn.metrics import precision_recall_curve, make_scorer, auc
 ##### create param_grid dictionaries for weighted classes
 param_grid_lr_wc = {
     'classify__penalty':['l1'],
-    'classify__class_weight': [{0:0.02, 1:0.98} ,{0:0.1, 1:0.9}],
+    'classify__class_weight': ['balanced'],
     'classify__C' : [0.03, 0.05, 0.1] }    
 
 param_grid_rf_wc = {
@@ -161,34 +162,25 @@ for df in df_dict.values():
     
     print("Whole Data Set is of shape: " + str(data.shape))
     print("Whole Data Imbalance is: " + str(data['label'].sum()/data.shape[0]))
-
+    
     ####### sample data to test the flow
-   # data['Weights'] = np.where(data['label'] > 0, .98, .02)
-   # data = data.sample(frac=.05, weights='Weights')
+    #data['Weights'] = np.where(data['label'] > 0, .98, .02)
+    #data = data.sample(frac=.05, weights='Weights')
+    #data.drop('Weights', axis = 1)
     
 ###### split target attribut 
     X = data.loc[:, data.columns != 'label']
     y = data['label']
- 
-    
+   
     ###### train test split
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.33, stratify = y )
     
-
-    """
-    model_LR_wc = gs_LR_wc.fit(X_train, y_train)
-    model_RF_wc = gs_RF_wc.fit(X_train, y_train)
-    
-    pickle._dump(model_LR_wc, open('Models/model_LR_wc.sav', 'wb'))
-    pickle._dump(gs_LR_wc.cv_results_, open("cv_results_LR.pkl","wb"))
-    pickle._dump(model_RF_wc, open('Models/model_RF_wc.sav', 'wb'))
-    """
     
     df_name = df.split('.')[0]
     print('Data Set: %s' % df_name)
     
-    grids = [gs_GBM_wc ,gs_RF_wc,  gs_LR_wc, gs_GBM_im, gs_RF_im, gs_LR_im ]
-    grid_dict = {0:'GBM', 1: 'RandomForest', 2 :'LogisticRegression', 3: 'GBMWithImb', 4:'RandomForestWithImb', 5: 'LogisticWithImb'}
+    grids = [gs_GBM_wc ,gs_RF_wc,  gs_LR_wc]  #, gs_GBM_im, gs_RF_im, gs_LR_im ]
+    grid_dict = {0:'GBM', 1: 'RandomForest', 2 :'LogisticRegression'} # , 3: 'GBMWithImb', 4:'RandomForestWithImb', 5: 'LogisticWithImb'}
     
  
     
@@ -205,7 +197,7 @@ for df in df_dict.values():
         #model.best_estimator_
         y_pred = model.predict(X_test)
         y_probas = model.predict_proba(X_test)
-        y_probas = y_probas[:,0]
+        y_probas = y_probas[:,1]
         print('Test set au_prc score for best params: %.3f ' % my_scorer.au_prc(y_test, y_probas))
     	   # Track best (highest test accuracy) model
         mn = grid_dict[idx]
@@ -213,35 +205,12 @@ for df in df_dict.values():
         model_filename = 'Models/' + model_name
         
         pickle._dump(model.best_estimator_, open(model_filename, 'wb'))
-        dict_name = 'cv_results_' + mn + '_' + df_name + '.pkl' 
+        dict_name = 'CV_results/cv_results_' + mn + '_' + df_name + '.pkl' 
         pickle._dump(gs.cv_results_, open(dict_name, "wb"))
         
-        #if prc_score(y_test, y_pred) > best_auc_prc:
-         #   best_auc_prc = au_prc(y_test, y_pred)
-          #  best_gs = gs
-           # best_clf = idx
+        if my_scorer.au_prc(y_test, y_probas) > best_auc_prc:
+            best_auc_prc = my_scorer.au_prc(y_test, y_pred)
+            best_gs = gs
+            best_clf = idx
     print('\nClassifier with best test set metrics: %s' % grid_dict[best_clf])
 
-"""    
-y_test
-p = model.predict(X_test)
-pp = model.predict_proba(X_test)
-pp = pp[:,0]
-
-au_prc(y_test, pp)
-model
-"""
-####  try LGBMClassifier without preprocessing
-"""
-options = {
-        'n_estimators': 10,
-        'learning_rate': 1.0,
-        'objective': 'binary',
-        'min_data': 1,
-        'min_data_in_bin': 1,
-        'random_state': 0,
-        'verbose': -1,
-}
-m = LGBMClassifier(categorical_feature = categorical,**options)
-m.fit(X_train, y_train)
-"""

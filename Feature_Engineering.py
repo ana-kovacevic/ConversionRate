@@ -67,5 +67,5 @@ class Feature_Quantification(BaseEstimator, TransformerMixin):
            
                 X = X.drop(key, axis=1)
       
-        #Sprint('Feature_Quantification transformation is done.')
+        #print('Feature_Quantification transformation is done.')
         return X
